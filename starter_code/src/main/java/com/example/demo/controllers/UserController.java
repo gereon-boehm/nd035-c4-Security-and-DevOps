@@ -1,7 +1,6 @@
 package com.example.demo.controllers;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import com.example.demo.model.persistence.Cart;
 import com.example.demo.model.persistence.User;
 import com.example.demo.model.persistence.repositories.CartRepository;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/user")
 public class UserController {
 
-	public static final Logger log = LoggerFactory.getLogger(UserController.class);
+	public static final Logger log = Logger.getLogger(UserController.class);
 
 	@Autowired
 	private UserRepository userRepository;
@@ -45,15 +44,19 @@ public class UserController {
 		Cart cart = new Cart();
 		cartRepository.save(cart);
 		user.setCart(cart);
+		if(userRepository.existsByUsername(createUserRequest.getUsername())){
+			log.error("Error with username. Username "+ createUserRequest.getUsername() +" already taken, choose another one.");
+			return ResponseEntity.badRequest().build();
+		}
 		if(createUserRequest.getPassword().length() < 7 ||
 				!createUserRequest.getPassword().equals(createUserRequest.getConfirmPassword())){
-			log.error("Error with user password. Cannot create user {}", createUserRequest.getUsername());
+			log.error("Error with user password. Cannot create user " + createUserRequest.getUsername() + ".");
 			return ResponseEntity.badRequest().build();
 		}
 		user.setPassword(bCryptPasswordEncoder.encode(createUserRequest.getPassword()));
 		userRepository.save(user);
 
-		log.info("User with username {} successfully created.", createUserRequest.getUsername());
+		log.info("User with username "+ createUserRequest.getUsername() +" successfully created.");
 
 		return ResponseEntity.ok(user);
 	}
