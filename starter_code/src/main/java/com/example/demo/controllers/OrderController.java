@@ -50,7 +50,7 @@ public class OrderController {
 	public ResponseEntity<List<UserOrder>> getOrdersForUser(@PathVariable String username) {
 		User user = userRepository.findByUsername(username);
 		if(user == null) {
-			log.error("Error! Can't find user '"git s + username + "' for getting the order history");
+			log.error("Error! Can't find user '" + username + "' for getting the order history");
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(orderRepository.findByUser(user));
